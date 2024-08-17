@@ -19,7 +19,6 @@
     "sidePanel",
     "storage",
     "webRequest",
-    "webRequestBlocking",
     "tabs",
     "activeTab"
   ],
@@ -31,11 +30,19 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["auth.html","auth.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "auth.html",
+        "auth.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
-  }
+  },
+  "host_permissions": [
+    "https://psa.bluenetinc.com/api/TimesheetEvent"
+  ]
 }

@@ -180,6 +180,20 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  function convertTo24Hour(timeStr) {
+    const [time, modifier] = timeStr.split(' ');
+
+    let [hours, minutes] = time.split(':');
+    if (hours === '12') {
+        hours = '00';
+    }
+    if (modifier === 'PM') {
+        hours = parseInt(hours, 10) + 12;
+    }
+    
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00`; // Add seconds for ISO format
+}
+
   /**
    * Entra
    */
@@ -199,6 +213,51 @@ document.addEventListener("DOMContentLoaded", async function () {
     await writeLocalStorage('key', value);
   });
 
+  document.getElementById('add-meetings').addEventListener('click', async function () {
+    // Get all meetings entries
+    const meetingsElements = document.querySelectorAll('.meetings');
+
+    const token = await getHaloPSAAuthToken();
+
+    const timesheet = [];
+
+    // Loop through each meeting element
+    meetingsElements.forEach(meeting => {
+      const subject = meeting.querySelector('.subject').innerText;
+      const start = new Date(`${new Date().toISOString().split('T')[0]}T${convertTo24Hour(meeting.querySelector('.start').innerText.replace(' CDT', ''))}`).toISOString();
+      const end = new Date(`${new Date().toISOString().split('T')[0]}T${convertTo24Hour(meeting.querySelector('.end').innerText.replace(' CDT', ''))}`).toISOString();
+
+      timesheet.push({
+        end_date: end.trim(),
+        start_date: start.trim(),
+        ticket_id: null,
+        tickettype_id: null,
+        lognewticket: false,
+        //client_id: appSettings.haloPSAClientId,
+        agent_id: appSettings.haloPSAAgentId,
+        agents: [{ id: appSettings.haloPSAAgentId, name: appSettings.haloPSAAgentName }],
+        event_type: 0,
+        site_id: appSettings.haloPSASiteId,
+        user_name: appSettings.haloPSAAgentName,
+        charge_rate: 0,
+        note: subject.trim(),
+        subject: `Quick Time - ${appSettings.haloPSAAgentName} - ${new Date().toLocaleString()}`
+      });
+    });
+
+    // fetch("https://psa.bluenetinc.com/api/TimesheetEvent", {
+    //   method: "POST",
+    //   headers: {
+    //     "Authorization": `Bearer ${token}`,
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: JSON.stringify(timesheet)
+    // })
+    //   .then(response => response.json())
+    //   .then(data => console.log("Timesheet event response:", data))
+    //   .catch(error => console.error("Error creating timesheet event:", error));
+  });
+
   chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
     if (request.action === 'receiveToken') {
       var events = await getTodaysEvents(request.token);
@@ -209,17 +268,17 @@ document.addEventListener("DOMContentLoaded", async function () {
         const endDateTime = convertUTCToCentralTime(event.end.dateTime);
         const duration = getMeetingDuration(event.start.dateTime, event.end.dateTime);
         document.getElementById('meetings').innerHTML += `
-    <div class="small">
+    <div class="small meetings">
       <div class="d-flex align-items-center justify-content-between">
-        <div>${event.subject}</div>
-        <div>${duration}</div>
+        <div class="subject">${event.subject}</div>
+        <div class="duration">${duration}</div>
       </div>
       <div class="d-flex align-items-center justify-content-between small text-muted">
-        <div>${startDateTime.split(",")[1]}</div>
+        <div class="start">${startDateTime.split(",")[1]}</div>
         <div class="d-flex align-items-center justify-content-center">
           <i class="bi bi-arrow-right-short"></i>
         </div>
-        <div>${endDateTime.split(",")[1]}</div>
+        <div class="end">${endDateTime.split(",")[1]}</div>
       </div>
     </div>`
       });
