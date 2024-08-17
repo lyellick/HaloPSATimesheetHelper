@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
   }
-  
+
   function convertTo24Hour(timeStr) {
     const [time, modifier] = timeStr.split(' ');
 
@@ -225,19 +225,23 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const timesheet = [];
 
+    const today = new Date();
+    const cstOffset = -6; // CST is UTC-6
+    const localDate = new Date(today.getTime() + (cstOffset - today.getTimezoneOffset() / 60) * 60 * 60 * 1000);
+    const currentDate = localDate.toISOString().split('T')[0];
+
     // Loop through each meeting element
     meetingsElements.forEach(meeting => {
       const subject = meeting.querySelector('.subject').innerText;
-      const start = new Date(`${new Date().toISOString().split('T')[0]}T${convertTo24Hour(meeting.querySelector('.start').innerText.replace(' CDT', ''))}`).toISOString();
-      const end = new Date(`${new Date().toISOString().split('T')[0]}T${convertTo24Hour(meeting.querySelector('.end').innerText.replace(' CDT', ''))}`).toISOString();
-
+      const start = new Date(`${currentDate}T${convertTo24Hour(meeting.querySelector('.start').innerText.replace(' CDT', ''))}`).toISOString();
+      const end = new Date(`${currentDate}T${convertTo24Hour(meeting.querySelector('.end').innerText.replace(' CDT', ''))}`).toISOString();
+      console.log(start);
       timesheet.push({
         end_date: end.trim(),
         start_date: start.trim(),
         ticket_id: null,
         tickettype_id: null,
         lognewticket: false,
-        //client_id: appSettings.haloPSAClientId,
         agent_id: appSettings.haloPSAAgentId,
         agents: [{ id: appSettings.haloPSAAgentId, name: appSettings.haloPSAAgentName }],
         event_type: 0,
