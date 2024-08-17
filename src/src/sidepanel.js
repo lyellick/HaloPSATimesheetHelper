@@ -179,20 +179,24 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
   }
-
+  
   function convertTo24Hour(timeStr) {
     const [time, modifier] = timeStr.split(' ');
 
     let [hours, minutes] = time.split(':');
+    hours = String(hours); // Ensure hours is a string
+    minutes = String(minutes); // Ensure minutes is a string
+
     if (hours === '12') {
-        hours = '00';
+      hours = '00';
     }
     if (modifier === 'PM') {
-        hours = parseInt(hours, 10) + 12;
+      hours = (parseInt(hours, 10) + 12).toString(); // Convert back to string after addition
     }
-    
+
     return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00`; // Add seconds for ISO format
-}
+  }
+
 
   /**
    * Entra
@@ -245,17 +249,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     });
 
-    // fetch("https://psa.bluenetinc.com/api/TimesheetEvent", {
-    //   method: "POST",
-    //   headers: {
-    //     "Authorization": `Bearer ${token}`,
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: JSON.stringify(timesheet)
-    // })
-    //   .then(response => response.json())
-    //   .then(data => console.log("Timesheet event response:", data))
-    //   .catch(error => console.error("Error creating timesheet event:", error));
+    fetch("https://psa.bluenetinc.com/api/TimesheetEvent", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(timesheet)
+    })
+      .then(response => response.json())
+      .then(data => console.log("Timesheet event response:", data))
+      .catch(error => console.error("Error creating timesheet event:", error));
   });
 
   chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
