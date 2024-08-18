@@ -326,7 +326,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       const actualHours = data.actual_hours;
       const unloggedHours = data.unlogged_hours;
       const sortedEvents = sortTimesheetByStartTime(data.events);
-      if (events.length > 0) {
+      if (sortedEvents.length > 0) {
         document.getElementById('timesheet').innerHTML = "";
 
         sortedEvents.forEach((event) => {
