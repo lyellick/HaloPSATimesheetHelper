@@ -139,6 +139,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
+  function sortTimesheetByStartTime(events) {
+    return events.sort((a, b) => {
+      const startA = new Date(a.start_date);
+      const startB = new Date(b.start_date);
+      return startA - startB; // Sort in ascending order (earliest first)
+    });
+  }
+
   async function getTodaysEvents(accessToken) {
     // Get today's date and format it in ISO 8601 format
     const today = new Date();
@@ -300,4 +308,25 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     }
   });
+
+  const cstDate = new Date(new Date().getTime() - 6 * 60 * 60 * 1000);
+
+  const cstStartOfDay = new Date(Date.UTC(cstDate.getUTCFullYear(), cstDate.getUTCMonth(), cstDate.getUTCDate() - 1));
+
+  fetch(`https://psa.bluenetinc.com/api/Timesheet/0?utcoffset=300&date=${cstStartOfDay.toISOString()}&agent_id=${appSettings.haloPSAAgentId}`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${await getHaloPSAAuthToken()}`,
+      "Content-Type": "application/json"
+    }
+  })
+    .then(response => response.json())
+    .then(data => {
+      const targetHours = data.target_hours;
+      const actualHours = data.actual_hours;
+      const unloggedHours = data.unlogged_hours;
+      const sortedEvents = sortTimesheetByStartTime(data.events);
+      
+    })
+    .catch(error => console.error("Error creating timesheet event:", error));
 });
