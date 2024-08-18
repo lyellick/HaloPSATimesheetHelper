@@ -286,8 +286,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           const startDateTime = convertUTCToCentralTime(event.start.dateTime);
           const endDateTime = convertUTCToCentralTime(event.end.dateTime);
           const duration = getMeetingDuration(event.start.dateTime, event.end.dateTime);
-          document.getElementById('meetings').innerHTML += 
-          `
+          document.getElementById('meetings').innerHTML +=
+            `
             <div class="small meetings">
               <div class="d-flex align-items-center justify-content-between">
                 <div class="subject">${event.subject}</div>
@@ -326,7 +326,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       const actualHours = data.actual_hours;
       const unloggedHours = data.unlogged_hours;
       const sortedEvents = sortTimesheetByStartTime(data.events);
-      
+      if (events.length > 0) {
+        document.getElementById('timesheet').innerHTML = "";
+
+        sortedEvents.forEach((event) => {
+          const customer = event.customer;
+          const start = event.start_date;
+          const end = event.end_date;
+          const subject = event.subject;
+          document.getElementById('timesheet').innerHTML += ``
+        });
+      } else {
+        document.getElementById('meetings').innerHTML = `<div class="d-flex align-items-center justify-content-center text-muted small">Nothing today.</div>`;
+      }
     })
-    .catch(error => console.error("Error creating timesheet event:", error));
+  .catch(error => console.error("Error creating timesheet event:", error));
 });
