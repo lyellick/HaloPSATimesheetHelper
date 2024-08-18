@@ -270,26 +270,34 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (request.action === 'receiveToken') {
       var events = await getTodaysEvents(request.token);
       var sortedEvents = sortEventsByStartTime(events);
-      document.getElementById('meetings').innerHTML = "";
-      sortedEvents.forEach((event) => {
-        const startDateTime = convertUTCToCentralTime(event.start.dateTime);
-        const endDateTime = convertUTCToCentralTime(event.end.dateTime);
-        const duration = getMeetingDuration(event.start.dateTime, event.end.dateTime);
-        document.getElementById('meetings').innerHTML += `
-    <div class="small meetings">
-      <div class="d-flex align-items-center justify-content-between">
-        <div class="subject">${event.subject}</div>
-        <div class="duration">${duration}</div>
-      </div>
-      <div class="d-flex align-items-center justify-content-between small text-muted">
-        <div class="start">${startDateTime.split(",")[1]}</div>
-        <div class="d-flex align-items-center justify-content-center">
-          <i class="bi bi-arrow-right-short"></i>
-        </div>
-        <div class="end">${endDateTime.split(",")[1]}</div>
-      </div>
-    </div>`
-      });
+
+      if (events.length > 0) {
+        document.getElementById('meetings').innerHTML = "";
+
+        sortedEvents.forEach((event) => {
+          const startDateTime = convertUTCToCentralTime(event.start.dateTime);
+          const endDateTime = convertUTCToCentralTime(event.end.dateTime);
+          const duration = getMeetingDuration(event.start.dateTime, event.end.dateTime);
+          document.getElementById('meetings').innerHTML += 
+          `
+            <div class="small meetings">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="subject">${event.subject}</div>
+                <div class="duration">${duration}</div>
+              </div>
+              <div class="d-flex align-items-center justify-content-between small text-muted">
+                <div class="start">${startDateTime.split(",")[1]}</div>
+                <div class="d-flex align-items-center justify-content-center">
+                  <i class="bi bi-arrow-right-short"></i>
+                </div>
+                <div class="end">${endDateTime.split(",")[1]}</div>
+              </div>
+            </div>
+          `
+        });
+      } else {
+        document.getElementById('meetings').innerHTML = `<div class="d-flex flex-grow-1 align-items-center justify-content-center text-muted small">Nothing today.</div>`;
+      }
     }
   });
 });
